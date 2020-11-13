@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # ./spec/piece_spec.rb
 require './lib/piece'
 require 'rspec'
