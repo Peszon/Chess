@@ -4,8 +4,8 @@
 require './lib/board'
 
 describe Board do
-	let(:board) { Board.new }
-	$board = Array.new(8) { Array.new(8) }
+  let(:board) { Board.new }
+  $board = Array.new(8) { Array.new(8) }
 
   describe '#initalize' do
     it 'boardsetup' do
@@ -55,12 +55,12 @@ describe Board do
     end
   end
 
-	descirbe '#check_move?' do
-		descirbe 'should return false when' do
-			it 'a friendly piece occupies the selected square' do
-				board.board[2][0] = Piece.new('white', 'pawn', nil)
-				expect(check_move?([1,0], [2,0])).to be false
-			end 
-		end 
+  descirbe '#check_move?' do
+    descirbe 'should return false when' do
+      it 'a friendly piece occupies the selected square' do
+        board.board[2][0] = Piece.new('white', 'pawn', nil)
+        expect(check_move?([1, 0], [2, 0])).to be false
+      end
+    end
   end
 end
