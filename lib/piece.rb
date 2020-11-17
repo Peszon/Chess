@@ -13,6 +13,7 @@ class Piece
       proc do |start_coordinates|
         all_moves = [[start_coordinates[0] + 1, start_coordinates[1] - 1],
                      [start_coordinates[0] + 1, start_coordinates[1]],
+                     [start_coordinates[0] + 2, start_coordinates[1]],
                      [start_coordinates[0] + 1, start_coordinates[1] + 1]]
 
         Piece.clear_out_of_bounds(all_moves)
