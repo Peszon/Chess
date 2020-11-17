@@ -10,7 +10,7 @@ describe Piece do
   describe '::possible moves' do
     it 'generates a proc that predicts how the piece moves' do
       expect(Piece.get_moveset_proc('pawn')).to be_kind_of(Proc)
-      expect(piece.possible_moves.call([1, 0])).to eq([[2, -1], [2, 0], [2, 1]])
+      expect(piece.possible_moves.call([1, 0])).to eq([[2, -1], [2, 0], [3, 0], [2, 1]])
     end
   end
 
