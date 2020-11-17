@@ -33,6 +33,13 @@ describe Board do
     end
   end
 
+  describe '::setting the board' do
+    it 'should set up all the pieces in standard formation' do # already tested that the pieces are positioned correctly in intialize
+      allow(:Board).to recive(:setting_the_board)
+      expect(Board.new).to recive(:setting_the_board)
+    end
+  end
+
   describe '#move_piece' do
     it 'should move the piece' do
       expect(board.board[1][0].subclass).to eql('pawn')
@@ -55,11 +62,66 @@ describe Board do
     end
   end
 
-  descirbe '#check_move?' do
-    descirbe 'should return false when' do
+  describe '#check_move?' do
+    describe 'should return false when' do
       it 'a friendly piece occupies the selected square' do
-        board.board[2][0] = Piece.new('white', 'pawn', nil)
+        board.board[2][0] = Piece.new('white', 'pawn')
         expect(check_move?([1, 0], [2, 0])).to be false
+      end
+
+      it 'your king is checked and the move doesnt remove the check' do
+        board.board[1][4] = nil
+        board.board[2][4] = Piece.new('rook', 'black')
+        expect(check_move?([1, 0], [2, 0])).to be false
+      end
+
+      it "it isn't a legal move for the piece" do
+        expect(check_move?([1, 0], [4, 0])).to be false
+      end
+
+      it 'the move is out of bounds' do
+        board.board[1][0] = Piece.new('rook', 'white')
+        expect(check_move?([1, 0], [9, 3])).to be false
+      end
+
+      it "there isn't a controllable piece on the selected square" do
+        expect(check_move?([3, 0], [4, 0])).to be false
+      end
+
+      it 'the piece jumps over another piece' do
+        expect(check_move?([0, 0], [5, 0])).to be false
+        board.board[3][0] = Piece.new('black', 'pawn')
+        board.board[1][0] = nil
+        expect(check_move?([0, 0], [5, 0])).to be false
+      end
+    end
+
+    describe 'special pawn rules: ' do
+      it "shouldn't move forward when there is a piece in the way; friendly or not" do
+        board.board[0][0] = Piece.new('white', 'pawn')
+        expect(check_move?([0, 0][1, 0])).to be false
+        board.board[0][0] = Piece.new('black', 'pawn')
+        expect(check_move?([0, 0][1, 0])).to be false
+      end
+
+      it "should be able to move two steps forward if it's on the first row and nothing is in it's path" do
+        expect(check_move?([1, 0][3, 0])).to be true
+        board.board[2][0] = Piece.new('white', 'pawn')
+        expect(check_move?([1, 0][3, 0])).to be false
+      end
+
+      it 'should only be able to move diagonally when it takes' do
+        expect(check_move?([1, 0][2, 1])).to be false
+        board.board[2][1] = Piece.new('black', 'pawn')
+        board.board[2][3] = Piece.new('white', 'pawn')
+        expect(check_move?([1, 0][2, 1])).to be true
+        expect(check_move?([1, 0][2, 1])).to be false
+      end
+
+      it 'en-passant' do
+        board.board[3][1] = Piece.new('black', 'pawn')
+        board.make_move([1, 0], [3, 0])
+        expect(check_move?([3, 1], [2, 0])).to be true
       end
     end
   end
