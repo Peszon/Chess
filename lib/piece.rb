@@ -7,17 +7,28 @@
 class Piece
   attr_reader :colour, :subclass, :possible_moves
 
-  def self.get_moveset_proc(subclass)
+  def self.get_moveset_proc(subclass, colour)
     case subclass
-    when 'pawn'
-      proc do |start_coordinates|
-        all_moves = [[start_coordinates[0] + 1, start_coordinates[1] - 1],
-                     [start_coordinates[0] + 1, start_coordinates[1]],
-                     [start_coordinates[0] + 2, start_coordinates[1]],
-                     [start_coordinates[0] + 1, start_coordinates[1] + 1]]
+    when 'pawn' #add moveset for black pawns aswell!
+      if colour == "white"
+        proc do |start_coordinates|
+          all_moves = [[start_coordinates[0] + 1, start_coordinates[1] - 1],
+                       [start_coordinates[0] + 1, start_coordinates[1]],
+                       [start_coordinates[0] + 2, start_coordinates[1]],
+                       [start_coordinates[0] + 1, start_coordinates[1] + 1]]
 
-        Piece.clear_out_of_bounds(all_moves)
-      end
+          Piece.clear_out_of_bounds(all_moves)
+        end 
+      else
+        proc do |start_coordinates|
+          all_moves = [[start_coordinates[0] - 1, start_coordinates[1] - 1],
+                       [start_coordinates[0] - 1, start_coordinates[1]],
+                       [start_coordinates[0] - 2, start_coordinates[1]],
+                       [start_coordinates[0] - 1, start_coordinates[1] + 1]]
+
+          Piece.clear_out_of_bounds(all_moves)
+        end 
+      end 
     when 'rook'
       proc do |start_coordinates|
         all_moves = []
@@ -100,12 +111,14 @@ class Piece
   def initialize(colour, subclass)
     @colour = colour
     @subclass = subclass
-    @possible_moves = Piece.get_moveset_proc(subclass)
+    @possible_moves = Piece.get_moveset_proc(subclass, colour)
   end
 end
 
-# pawn = Piece.new("white","pawn")
-# p pawn.possible_moves.call([0,0])
+# blackpawn = Piece.new("black", "pawn")
+# p blackpawn.possible_moves.call([7,1])
+# whitepawn = Piece.new("white","pawn")
+# p whitepawn.possible_moves.call([0,1])
 # rook = Piece.new("white", "rook")
 # p rook.possible_moves.call([1,2])
 # knight = Piece.new("white", "knight")
