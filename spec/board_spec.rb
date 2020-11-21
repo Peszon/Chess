@@ -122,7 +122,31 @@ describe Board do
         board.board[3][1] = Piece.new('black', 'pawn')
         board.make_move([1, 0], [3, 0])
         expect(check_move?([3, 1], [2, 0])).to be true
-      end
-    end
-  end
+			end
+		end
+		
+		describe "should return true when" do
+			it "nothing is false" do
+				expect(board.make_move([1,0],[2,0])).to be true
+			end
+		end 
+	end
+	
+	describe "#game_over?" do 
+		it "returns true when won? returns true" do 
+			allow(board).to recive(:won?).and_return(true)
+			expect(board.game_over?).to be true
+		end 
+
+		it "returns true when draw? returns true" do
+			allow(board).to recive(:draw?).and_return(true)
+			expect(board.game_over?).to be true
+		end
+
+		it "returns false when draw? and won? are false" do
+			allow(board).to recive(:won?).and_return(false)
+			allow(board).to recive(:draw?).and_return(false)
+			expect(board.game_over?).to be false 
+		end 
+	end
 end
