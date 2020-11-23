@@ -133,8 +133,8 @@ describe Board do
 	end
 	
 	describe "#game_over?" do 
-		it "returns true when won? returns true" do 
-			allow(board).to recive(:won?).and_return(true)
+		it "returns true when lost? returns true" do 
+			allow(board).to recive(:lost?).and_return(true)
 			expect(board.game_over?).to be true
 		end 
 
@@ -143,10 +143,68 @@ describe Board do
 			expect(board.game_over?).to be true
 		end
 
-		it "returns false when draw? and won? are false" do
-			allow(board).to recive(:won?).and_return(false)
+		it "returns false when lost? and draw? are false" do
+			allow(board).to recive(:lost?).and_return(false)
 			allow(board).to recive(:draw?).and_return(false)
 			expect(board.game_over?).to be false 
+		end 
+
+		describe "#draw?" do 
+			before(:each) { board.instance_variable_set(:@board, Array.new(8) { Array.new(8) }) }
+
+			it "should return true if the player cant make a legal move" do
+				board.board[7][1] = Piece.new("rook", "black")
+				board.board[1][7] = Piece.new("rook", "black")
+				board.board[0][0] = Piece.new("king", "white")
+				board.instance_variable_set(:@next_move, "white")
+
+				expect(board.draw?).to be true
+			end
+
+			it "should return true if more than fifty moves were played without a taken piece" do
+				50.times do
+					board.make_move([rand(8), rand(8)], [rand(8), rand(8)])
+				end
+
+				expect(board.draw?).to be true
+			end 
+
+			it "should return false if there is a legal move" do 
+				board.board[7][1] = Piece.new("rook", "black")
+				board.board[1][7] = Piece.new("rook", "black")
+				board.board[0][0] = Piece.new("king", "white")
+				board.board[6][5] = Piece.new("pawn", "white")
+				board.instance_variable_set(:@next_move, "white")
+
+				expect(board.draw?).to be false
+			end 
+		end
+		
+		describe "#lost?" do
+			before(:each) { board.instance_variable_set(:@board, Array.new(8) { Array.new(8) }) }
+
+			it "should return true if there are no possible ways to escape the check" do
+				board.board[0][7] = Piece.new("pawn", "white")
+				board.board[1][0] = Piece.new("pawn", "white")
+				board.board[1][1] = Piece.new("king", "white")
+				board.board[0][0] = Piece.new("rook", "black")
+
+				board.instance_variable_set(:@next_move, "white")
+
+				expect(board.lost?).to be true
+			end 
+
+			it "should return false if there are possible ways to escape the check" do
+				board.board[0][7] = Piece.new("pawn", "white")
+				board.board[1][0] = Piece.new("pawn", "white")
+				board.board[1][1] = Piece.new("king", "white")
+				board.board[5][6] = Piece.new("rook", "white")
+				board.board[0][0] = Piece.new("rook", "black")
+
+				board.instance_variable_set(:@next_move, "white")
+
+				expect(board.lost?).to be false
+			end
 		end 
 	end
 end
