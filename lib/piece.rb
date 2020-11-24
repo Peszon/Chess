@@ -5,7 +5,7 @@
 # ./lib/piece.rb
 
 class Piece
-  attr_reader :color, :subclass, :possible_moves
+  attr_reader :color, :subclass, :possible_moves, :symbol
 
   def self.get_moveset_proc(subclass, color)
     case subclass
@@ -169,5 +169,8 @@ end
 # p bishop.possible_moves.call([1,1])
 # queen = Piece.new("white", "queen")
 # p queen.possible_moves.call([0,0])
-# king = Piece.new("white", "king")
+# king = Piece.new("king", "white")
+# puts king.symbol
+#print king.symbol.encode("utf-8")
+# puts "\u2654".encode('utf-8')
 # p king.possible_moves.call([0,0])
