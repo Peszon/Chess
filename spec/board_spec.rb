@@ -5,7 +5,6 @@ require './lib/board'
 
 describe Board do
   let(:board) { Board.new }
-  $board = Array.new(8) { Array.new(8) }
 
   describe '#initalize' do
     it 'boardsetup' do
@@ -33,7 +32,7 @@ describe Board do
     end
   end
 
-  describe '::setting the board' do
+  describe '::setting_the_board' do
     it 'should set up all the pieces in standard formation' do # already tested that the pieces are positioned correctly in intialize
       allow(:Board).to recive(:setting_the_board)
       expect(Board.new).to recive(:setting_the_board)
@@ -122,89 +121,89 @@ describe Board do
         board.board[3][1] = Piece.new('black', 'pawn')
         board.make_move([1, 0], [3, 0])
         expect(check_move?([3, 1], [2, 0])).to be true
-			end
-		end
-		
-		describe "should return true when" do
-			it "nothing is false" do
-				expect(board.make_move([1,0],[2,0])).to be true
-			end
-		end 
-	end
-	
-	describe "#game_over?" do 
-		it "returns true when lost? returns true" do 
-			allow(board).to recive(:lost?).and_return(true)
-			expect(board.game_over?).to be true
-		end 
+      end
+    end
 
-		it "returns true when draw? returns true" do
-			allow(board).to recive(:draw?).and_return(true)
-			expect(board.game_over?).to be true
-		end
+    describe 'should return true when' do
+      it 'nothing is false' do
+        expect(board.make_move([1, 0], [2, 0])).to be true
+      end
+    end
+  end
 
-		it "returns false when lost? and draw? are false" do
-			allow(board).to recive(:lost?).and_return(false)
-			allow(board).to recive(:draw?).and_return(false)
-			expect(board.game_over?).to be false 
-		end 
+  describe '#game_over?' do
+    it 'returns true when lost? returns true' do
+      allow(board).to recive(:lost?).and_return(true)
+      expect(board.game_over?).to be true
+    end
 
-		describe "#draw?" do 
-			before(:each) { board.instance_variable_set(:@board, Array.new(8) { Array.new(8) }) }
+    it 'returns true when draw? returns true' do
+      allow(board).to recive(:draw?).and_return(true)
+      expect(board.game_over?).to be true
+    end
 
-			it "should return true if the player cant make a legal move" do
-				board.board[7][1] = Piece.new("rook", "black")
-				board.board[1][7] = Piece.new("rook", "black")
-				board.board[0][0] = Piece.new("king", "white")
-				board.instance_variable_set(:@next_move, "white")
+    it 'returns false when lost? and draw? are false' do
+      allow(board).to recive(:lost?).and_return(false)
+      allow(board).to recive(:draw?).and_return(false)
+      expect(board.game_over?).to be false
+    end
 
-				expect(board.draw?).to be true
-			end
+    describe '#draw?' do
+      before(:each) { board.instance_variable_set(:@board, Array.new(8) { Array.new(8) }) }
 
-			it "should return true if more than fifty moves were played without a taken piece" do
-				50.times do
-					board.make_move([rand(8), rand(8)], [rand(8), rand(8)])
-				end
+      it 'should return true if the player cant make a legal move' do
+        board.board[7][1] = Piece.new('rook', 'black')
+        board.board[1][7] = Piece.new('rook', 'black')
+        board.board[0][0] = Piece.new('king', 'white')
+        board.instance_variable_set(:@next_move, 'white')
 
-				expect(board.draw?).to be true
-			end 
+        expect(board.draw?).to be true
+      end
 
-			it "should return false if there is a legal move" do 
-				board.board[7][1] = Piece.new("rook", "black")
-				board.board[1][7] = Piece.new("rook", "black")
-				board.board[0][0] = Piece.new("king", "white")
-				board.board[6][5] = Piece.new("pawn", "white")
-				board.instance_variable_set(:@next_move, "white")
+      it 'should return true if more than fifty moves were played without a taken piece' do
+        50.times do
+          board.make_move([rand(8), rand(8)], [rand(8), rand(8)])
+        end
 
-				expect(board.draw?).to be false
-			end 
-		end
-		
-		describe "#lost?" do
-			before(:each) { board.instance_variable_set(:@board, Array.new(8) { Array.new(8) }) }
+        expect(board.draw?).to be true
+      end
 
-			it "should return true if there are no possible ways to escape the check" do
-				board.board[0][7] = Piece.new("pawn", "white")
-				board.board[1][0] = Piece.new("pawn", "white")
-				board.board[1][1] = Piece.new("king", "white")
-				board.board[0][0] = Piece.new("rook", "black")
+      it 'should return false if there is a legal move' do
+        board.board[7][1] = Piece.new('rook', 'black')
+        board.board[1][7] = Piece.new('rook', 'black')
+        board.board[0][0] = Piece.new('king', 'white')
+        board.board[6][5] = Piece.new('pawn', 'white')
+        board.instance_variable_set(:@next_move, 'white')
 
-				board.instance_variable_set(:@next_move, "white")
+        expect(board.draw?).to be false
+      end
+    end
 
-				expect(board.lost?).to be true
-			end 
+    describe '#lost?' do
+      before(:each) { board.instance_variable_set(:@board, Array.new(8) { Array.new(8) }) }
 
-			it "should return false if there are possible ways to escape the check" do
-				board.board[0][7] = Piece.new("pawn", "white")
-				board.board[1][0] = Piece.new("pawn", "white")
-				board.board[1][1] = Piece.new("king", "white")
-				board.board[5][6] = Piece.new("rook", "white")
-				board.board[0][0] = Piece.new("rook", "black")
+      it 'should return true if there are no possible ways to escape the check' do
+        board.board[0][7] = Piece.new('pawn', 'white')
+        board.board[1][0] = Piece.new('pawn', 'white')
+        board.board[1][1] = Piece.new('king', 'white')
+        board.board[0][0] = Piece.new('rook', 'black')
 
-				board.instance_variable_set(:@next_move, "white")
+        board.instance_variable_set(:@next_move, 'white')
 
-				expect(board.lost?).to be false
-			end
-		end 
-	end
+        expect(board.lost?).to be true
+      end
+
+      it 'should return false if there are possible ways to escape the check' do
+        board.board[0][7] = Piece.new('pawn', 'white')
+        board.board[1][0] = Piece.new('pawn', 'white')
+        board.board[1][1] = Piece.new('king', 'white')
+        board.board[5][6] = Piece.new('rook', 'white')
+        board.board[0][0] = Piece.new('rook', 'black')
+
+        board.instance_variable_set(:@next_move, 'white')
+
+        expect(board.lost?).to be false
+      end
+    end
+  end
 end
