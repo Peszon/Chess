@@ -5,12 +5,12 @@
 # ./lib/piece.rb
 
 class Piece
-  attr_reader :colour, :subclass, :possible_moves
+  attr_reader :color, :subclass, :possible_moves
 
-  def self.get_moveset_proc(subclass, colour)
+  def self.get_moveset_proc(subclass, color)
     case subclass
-    when 'pawn' #add moveset for black pawns aswell!
-      if colour == "white"
+    when 'pawn'
+      if color == 'white'
         proc do |start_coordinates|
           all_moves = [[start_coordinates[0] + 1, start_coordinates[1] - 1],
                        [start_coordinates[0] + 1, start_coordinates[1]],
@@ -18,7 +18,7 @@ class Piece
                        [start_coordinates[0] + 1, start_coordinates[1] + 1]]
 
           Piece.clear_out_of_bounds(all_moves)
-        end 
+        end
       else
         proc do |start_coordinates|
           all_moves = [[start_coordinates[0] - 1, start_coordinates[1] - 1],
@@ -27,8 +27,8 @@ class Piece
                        [start_coordinates[0] - 1, start_coordinates[1] + 1]]
 
           Piece.clear_out_of_bounds(all_moves)
-        end 
-      end 
+        end
+      end
     when 'rook'
       proc do |start_coordinates|
         all_moves = []
@@ -36,7 +36,7 @@ class Piece
           all_moves << [start_coordinates[0], i]
           all_moves << [i, start_coordinates[1]]
         end
-        
+
         all_moves.delete(start_coordinates)
         Piece.clear_out_of_bounds(all_moves)
       end
@@ -50,7 +50,7 @@ class Piece
                      [start_coordinates[0] - 1, start_coordinates[1] - 2],
                      [start_coordinates[0] - 2, start_coordinates[1] + 1],
                      [start_coordinates[0] - 2, start_coordinates[1] - 1]]
-        
+
         Piece.clear_out_of_bounds(all_moves)
       end
     when 'bishop'
@@ -64,7 +64,7 @@ class Piece
         end
 
         Piece.clear_out_of_bounds(all_moves)
-      end 
+      end
     when 'queen'
       proc do |start_coordinates|
         all_moves = []
@@ -81,7 +81,7 @@ class Piece
         end
 
         all_moves.delete(start_coordinates)
-        Piece.clear_out_of_bounds(all_moves)      
+        Piece.clear_out_of_bounds(all_moves)
       end
     when 'king'
       proc do |start_coordinates|
@@ -104,14 +104,56 @@ class Piece
       move_coordinates[0] < 0 ||
       move_coordinates[0] > 7 ||
       move_coordinates[1] > 7 ||
-      move_coordinates[1] < 0 
+      move_coordinates[1] < 0
+    end
+  end
+
+  def self.get_symbol(subclass, color)
+    case subclass
+    when "pawn"
+      if color == "white"
+        "\u2659"
+      else
+        "\u265F"
+      end 
+    when "rook"
+      if color == "white"
+        "\u2656"
+      else
+        "\u265C"
+      end 
+    when "bishop"
+      if color == "white"
+        "\u2657"
+      else
+        "\u265D"
+      end 
+    when "knight"
+      if color == "white"
+        "\u2658"
+      else
+        "\u265E"
+      end 
+    when "queen"
+      if color == "white"
+        "\u2655"
+      else
+        "\u265B"
+      end 
+    when "king"
+      if color == "white"
+        "\u2654"
+      else
+        "\u265A"
+      end 
     end 
   end
 
-  def initialize(colour, subclass)
-    @colour = colour
+  def initialize(subclass, color)
     @subclass = subclass
-    @possible_moves = Piece.get_moveset_proc(subclass, colour)
+    @color = color
+    @possible_moves = Piece.get_moveset_proc(subclass, color)
+    @symbol = Piece.get_symbol(subclass, color)
   end
 end
 
