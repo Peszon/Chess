@@ -37,32 +37,43 @@ class Board
 
   def initialize
     @board = Array.new(8) { Array.new(8) }
-    @players = [Player.new, Player.new]
-    @next_move = 'white'
+    @players = [Player.new('white'), Player.new('black')]
+    @next_move = @players[0]
     @move_history = []
 
     Board.setting_the_board(self)
   end
 
   def display
-    if @next_move == 'white'
+    if @next_move.color == 'white'
       7.downto(0) do |row_index|
-        row = "#{row_index + 1} "
-        0.upto(7) do |column_index|
-          if (row_index + column_index).even?
-            row += ' '.colorize(background: :black) + "\u2656".encode('utf-8').colorize(background: :black) + ' '.colorize(background: :black)
-          else
-            row += ' '.colorize(background: :red) + "\u2656".encode('utf-8').colorize(background: :red) + ' '.colorize(background: :red)
-          end
-        end
+				row = "#{row_index + 1} "
+				
+				0.upto(7) do |column_index|
+					if (row_index + column_index).even?
+          	if @board[row_index][column_index].nil?
+								row += '   '.colorize(background: :black)
+						else 
+								row += ' '.colorize(background: :black) + @board[row_index][column_index].symbol.colorize(background: :black) + ' '.colorize(background: :black)
+						end 
 
-        puts row
+					else
+						if @board[row_index][column_index].nil?
+							row += '   '.colorize(background: :red)
+						else
+							row += ' '.colorize(background: :red) + @board[row_index][column_index].symbol.colorize(background: :red) + ' '.colorize(background: :red)
+						end 
+					end 
+				end
+				
+				puts row
       end
 
       puts '   a  b  c  d  e  f  g  h'
     else
       0.upto(7) do |row_index|
-        row = "#{row_index + 1} "
+				row = "#{row_index + 1} "
+				
         7.downto(0) do |column_index|
 					if (row_index + column_index).even?
 						if @board[row_index][column_index].nil?
@@ -70,6 +81,7 @@ class Board
 						else 
 							row += ' '.colorize(background: :black) + @board[row_index][column_index].symbol.colorize(background: :black) + ' '.colorize(background: :black)
 						end 
+
 					else
 						if @board[row_index][column_index].nil?
 							row += '   '.colorize(background: :red)
@@ -84,11 +96,25 @@ class Board
 
       puts '   h  g  f  e  d  c  b  a'
     end
-  end
+	end
+
+	def move_piece(start_coordinates, end_coordintes)
+		@board[end_coordintes[0]][end_coordintes[1]] = @board[start_coordinates[0]][start_coordinates[1]]
+		@board[start_coordinates[0]][start_coordinates[1]] = nil
+
+		@move_history << [start_coordinates, end_coordintes]
+
+		@next_move = @players.reject { |player| player == @next_move }
+		@next_move = @next_move[0] 
+	end 
 end
 
-# board = Board.new
-# board.display
+board = Board.new
+board.display
+board.move_piece([1,0],[3,0])
+board.display
+board.move_piece([6,0],[4,0])
+board.display
 # board.next_move = 'black'
 # p board
 # puts ' '
