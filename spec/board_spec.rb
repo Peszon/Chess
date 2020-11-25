@@ -14,8 +14,8 @@ describe Board do
       expect(board.board[7][5].subclass).to eql('bishop')
       expect(board.board[7][6].subclass).to eql('knight')
       expect(board.board[7][7].subclass).to eql('rook')
-      expect(board.board[0][0].colour).to eql('white')
-      expect(board.board[7][0].colour).to eql('black')
+      expect(board.board[0][0].color).to eql('white')
+      expect(board.board[7][0].color).to eql('black')
     end
 
     it 'move history' do
@@ -28,14 +28,7 @@ describe Board do
     end
 
     it 'next move' do
-      expect(board.instance_variable_get(:@next_move).colour).to eql('white')
-    end
-  end
-
-  describe '::setting_the_board' do
-    it 'should set up all the pieces in standard formation' do # already tested that the pieces are positioned correctly in intialize
-      allow(:Board).to recive(:setting_the_board)
-      expect(Board.new).to recive(:setting_the_board)
+      expect(board.instance_variable_get(:@next_move).color).to eql('white')
     end
   end
 
@@ -43,7 +36,7 @@ describe Board do
     it 'should move the piece' do
       expect(board.board[1][0].subclass).to eql('pawn')
       expect(board.board[2][0]).to eql(nil)
-      move_piece([1, 0], [2, 0])
+      board.move_piece([1, 0], [2, 0])
       expect(board.board[1][0]).to eql(nil)
       expect(board.board[2][0].subclass).to eql('pawn')
     end
@@ -55,9 +48,9 @@ describe Board do
     end
 
     it 'should switch player that occupies @next_move' do
-      expect(board.instance_variable_get(:@next_move).colour).to eql('white')
+      expect(board.instance_variable_get(:@next_move).color).to eql('white')
       board.move_piece([1, 0], [2, 0])
-      expect(board.instance_variable_get(:@next_move).colour).to eql('black')
+      expect(board.instance_variable_get(:@next_move).color).to eql('black')
     end
   end
 
@@ -133,18 +126,18 @@ describe Board do
 
   describe '#game_over?' do
     it 'returns true when lost? returns true' do
-      allow(board).to recive(:lost?).and_return(true)
+      allow(board).to receive(:lost?).and_return(true)
       expect(board.game_over?).to be true
     end
 
     it 'returns true when draw? returns true' do
-      allow(board).to recive(:draw?).and_return(true)
+      allow(board).to receive(:draw?).and_return(true)
       expect(board.game_over?).to be true
     end
 
     it 'returns false when lost? and draw? are false' do
-      allow(board).to recive(:lost?).and_return(false)
-      allow(board).to recive(:draw?).and_return(false)
+      allow(board).to receive(:lost?).and_return(false)
+      allow(board).to receive(:draw?).and_return(false)
       expect(board.game_over?).to be false
     end
 
