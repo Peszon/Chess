@@ -57,69 +57,74 @@ describe Board do
   describe '#check_move?' do
     describe 'should return false when' do
       it 'a friendly piece occupies the selected square' do
-        board.board[2][0] = Piece.new('white', 'pawn')
-        expect(check_move?([1, 0], [2, 0])).to be false
+        board.board[2][0] = Piece.new('pawn', 'white')
+        expect(board.check_move?([1, 0], [2, 0])).to be false
       end
 
       it 'your king is checked and the move doesnt remove the check' do
         board.board[1][4] = nil
         board.board[2][4] = Piece.new('rook', 'black')
-        expect(check_move?([1, 0], [2, 0])).to be false
+        expect(board.check_move?([1, 0], [2, 0])).to be false
       end
 
       it "it isn't a legal move for the piece" do
-        expect(check_move?([1, 0], [4, 0])).to be false
+        expect(board.check_move?([1, 0], [4, 0])).to be false
       end
 
       it 'the move is out of bounds' do
         board.board[1][0] = Piece.new('rook', 'white')
-        expect(check_move?([1, 0], [9, 3])).to be false
+        expect(board.check_move?([1, 0], [9, 3])).to be false
       end
 
       it "there isn't a controllable piece on the selected square" do
-        expect(check_move?([3, 0], [4, 0])).to be false
+        expect(board.check_move?([3, 0], [4, 0])).to be false
       end
 
       it 'the piece jumps over another piece' do
-        expect(check_move?([0, 0], [5, 0])).to be false
+        expect(board.check_move?([0, 0], [5, 0])).to be false
         board.board[3][0] = Piece.new('black', 'pawn')
         board.board[1][0] = nil
-        expect(check_move?([0, 0], [5, 0])).to be false
+        expect(board.check_move?([0, 0], [5, 0])).to be false
       end
     end
 
     describe 'special pawn rules: ' do
       it "shouldn't move forward when there is a piece in the way; friendly or not" do
+        expect(board.check_move?([1,0], [2,0])).to be true 
         board.board[0][0] = Piece.new('white', 'pawn')
-        expect(check_move?([0, 0][1, 0])).to be false
+        expect(board.check_move?([0, 0], [1, 0])).to be false
         board.board[0][0] = Piece.new('black', 'pawn')
-        expect(check_move?([0, 0][1, 0])).to be false
+        expect(board.check_move?([0, 0], [1, 0])).to be false
+
+        expect(board.check_move?([1, 0], [3, 0])).to be true
+        board.board[2][0] = Piece.new('black', 'pawn')
+        expect(board.check_move?([1, 0], [3, 0])).to be false
       end
 
       it "should be able to move two steps forward if it's on the first row and nothing is in it's path" do
-        expect(check_move?([1, 0][3, 0])).to be true
+        expect(board.check_move?([1, 0][3, 0])).to be true
         board.board[2][0] = Piece.new('white', 'pawn')
-        expect(check_move?([1, 0][3, 0])).to be false
+        expect(board.check_move?([1, 0][3, 0])).to be false
       end
 
       it 'should only be able to move diagonally when it takes' do
-        expect(check_move?([1, 0][2, 1])).to be false
+        expect(board.check_move?([1, 0], [2, 1])).to be false
         board.board[2][1] = Piece.new('black', 'pawn')
         board.board[2][3] = Piece.new('white', 'pawn')
-        expect(check_move?([1, 0][2, 1])).to be true
-        expect(check_move?([1, 0][2, 1])).to be false
+        expect(board.check_move?([1, 0], [2, 1])).to be true
+        expect(board.check_move?([1, 0], [2, 1])).to be false
       end
 
       it 'en-passant' do
         board.board[3][1] = Piece.new('black', 'pawn')
-        board.make_move([1, 0], [3, 0])
-        expect(check_move?([3, 1], [2, 0])).to be true
+        board.move_piece([1, 0], [3, 0])
+        expect(board.check_move?([3, 1], [2, 0])).to be true
       end
     end
 
     describe 'should return true when' do
       it 'nothing is false' do
-        expect(board.make_move([1, 0], [2, 0])).to be true
+        expect(board.move_piece([1, 0], [2, 0])).to be true
       end
     end
   end
@@ -155,7 +160,7 @@ describe Board do
 
       it 'should return true if more than fifty moves were played without a taken piece' do
         50.times do
-          board.make_move([rand(8), rand(8)], [rand(8), rand(8)])
+          board.move_piece([rand(8), rand(8)], [rand(8), rand(8)])
         end
 
         expect(board.draw?).to be true
