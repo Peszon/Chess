@@ -6,6 +6,7 @@ require_relative 'piece'
 require_relative 'player'
 
 require 'colorize'
+require 'byebug'
 
 class Board
   attr_accessor :board, :move_history, :next_move, :players
@@ -106,15 +107,45 @@ class Board
 
 		@next_move = @players.reject { |player| player == @next_move }
 		@next_move = @next_move[0] 
-	end 
+  end 
+  
+  def check_move?(start_coordinates, end_coordinates) #if a helper method returns true then the "area" it checked is okay"
+    return true if check_start_and_end?(start_coordinates, end_coordinates)
+    false
+  end 
+
+  def check_start_and_end?(start_coordinates, end_coordinates)
+    return false if @board[start_coordinates[0]][start_coordinates[1]].nil? # there is no piece to move
+
+    if @board[end_coordinates[0]][end_coordinates[1]].nil? # Checks that the moving piece is the same as the players whos turn it is. The end point has no piece and therefore no need to check it's color.
+      return false if @board[start_coordinates[0]][start_coordinates[1]].color != @next_move.color 
+    else #checks that the moving piece is the same color as the player and opposite of the piece it attacks. 
+      return false if @board[start_coordinates[0]][start_coordinates[1]].color != @next_move.color || @board[end_coordinates[0]][end_coordinates[1]].color == @next_move.color
+    end
+
+    true
+  end 
+
+  def check_jumping?(start_coordinates, end_coordinates)
+
+  end 
+
+  def check?
+
+  end 
 end
 
+# debugger 
+
 board = Board.new
-board.display
-board.move_piece([1,0],[3,0])
-board.display
-board.move_piece([6,0],[4,0])
-board.display
+board.board[2][0] = Piece.new("pawn", "black")
+p board.check_move?([1,0], [2,0])
+
+# board.display
+# board.move_piece([1,0],[3,0])
+# board.display
+# board.move_piece([6,0],[4,0])
+# board.display
 # board.next_move = 'black'
 # p board
 # puts ' '
