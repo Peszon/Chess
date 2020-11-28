@@ -110,9 +110,14 @@ class Board
   end 
   
   def check_move?(start_coordinates, end_coordinates) #if a helper method returns true then the "area" it checked is okay"
-    return true if check_start_and_end?(start_coordinates, end_coordinates)
+    return true if check_start_and_end?(start_coordinates, end_coordinates) && 
+                   check_jumping?(start_coordinates, end_coordinates)
     false
   end 
+
+  def legal_move?(start_coordinates, end_coordinates)
+
+  end
 
   def check_start_and_end?(start_coordinates, end_coordinates)
     return false if @board[start_coordinates[0]][start_coordinates[1]].nil? # there is no piece to move
@@ -127,7 +132,23 @@ class Board
   end 
 
   def check_jumping?(start_coordinates, end_coordinates)
+    row_dif = (start_coordinates[0] - end_coordinates[0])
+    column_dif = (start_coordinates[1] - end_coordinates[1])
 
+    return true if row_dif.abs < 2 && column_dif.abs < 2
+
+    row_dif == 0 ? row_increment = 0 : row_increment = (row_dif / row_dif.abs)
+    column_dif == 0 ? column_increment = 0 : column_increment = (column_dif / column_dif.abs)
+
+    row_index = start_coordinates[0] + row_increment
+    column_index = start_coordinates[0] + column_increment
+    while row_index != end_coordinates[0] && column_index != end_coordinates
+      return false unless @board[row_index][column_index].nil?
+      row_index += row_increment
+      column_index += column_increment
+    end 
+
+    true
   end 
 
   def check?
@@ -135,12 +156,13 @@ class Board
   end 
 end
 
-# debugger 
+#debugger 
 
 board = Board.new
 board.board[2][0] = Piece.new("pawn", "black")
-p board.check_move?([1,0], [2,0])
-
+board.board[0][0]
+p board.check_move?([0,0], [4,0])
+board.board[0][0]
 # board.display
 # board.move_piece([1,0],[3,0])
 # board.display
