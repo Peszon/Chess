@@ -109,15 +109,33 @@ class Board
 		@next_move = @next_move[0] 
   end 
   
-  def check_move?(start_coordinates, end_coordinates) #if a helper method returns true then the "area" it checked is okay"
-    return true if check_start_and_end?(start_coordinates, end_coordinates) && 
-                   check_jumping?(start_coordinates, end_coordinates)
+  def check_move?(start_coordinates, end_coordinates) #seperating the helper methods in legal_moves and check_checks due to legal_moves need to be used in check_checks. 
+    return true if legal_move?(start_coordinates, end_coordinates) #&& 
+                   #check_checks?(start_coordinates, end_coordinates)
     false
   end 
 
   def legal_move?(start_coordinates, end_coordinates)
-
+    return false unless check_move_in_bounds?(start_coordinates, end_coordinates)
+    return true if check_start_and_end?(start_coordinates, end_coordinates) &&
+                   check_jumping?(start_coordinates, end_coordinates) &&
+                   check_piece_moves?(start_coordinates, end_coordinates) 
+    false
   end
+
+  def check_piece_moves?(start_coordinates, end_coordinates)
+    possible_moves = @board[start_coordinates[0]][start_coordinates[1]].possible_moves.call(start_coordinates)
+    return false unless possible_moves.include?(end_coordinates)
+    true
+  end 
+
+  def check_move_in_bounds?(start_coordinates, end_coordinates)
+    [start_coordinates, end_coordinates].each do |coordinates|
+      return false if coordinates[0] < 0 || coordinates[0] > 7 || 
+                      coordinates[1] < 0 || coordinates[1] > 7
+    end 
+    true
+  end 
 
   def check_start_and_end?(start_coordinates, end_coordinates)
     return false if @board[start_coordinates[0]][start_coordinates[1]].nil? # there is no piece to move
@@ -132,37 +150,33 @@ class Board
   end 
 
   def check_jumping?(start_coordinates, end_coordinates)
-    row_dif = (start_coordinates[0] - end_coordinates[0])
-    column_dif = (start_coordinates[1] - end_coordinates[1])
+    row_dif = (end_coordinates[0] - start_coordinates[0])
+    column_dif = (end_coordinates[1] - start_coordinates[1]) #gets the x and y differential between the current coordinates and the new ones
 
-    return true if row_dif.abs < 2 && column_dif.abs < 2
+    return true if row_dif.abs < 2 && column_dif.abs < 2 # if the differental is less than 2 there is no possible way the piece could have jumped over another one. 
 
-    row_dif == 0 ? row_increment = 0 : row_increment = (row_dif / row_dif.abs)
+    row_dif == 0 ? row_increment = 0 : row_increment = (row_dif / row_dif.abs) #returns what the loop shall increment with 1, -1 or 0 depenting on the relation between the positions.
     column_dif == 0 ? column_increment = 0 : column_increment = (column_dif / column_dif.abs)
 
     row_index = start_coordinates[0] + row_increment
     column_index = start_coordinates[0] + column_increment
     while row_index != end_coordinates[0] && column_index != end_coordinates
-      return false unless @board[row_index][column_index].nil?
+      return false unless @board[row_index][column_index].nil? #checks that the squares between the two positons are empty. 
       row_index += row_increment
       column_index += column_increment
     end 
 
     true
   end 
-
-  def check?
-
-  end 
+ 
 end
 
 #debugger 
 
 board = Board.new
-board.board[2][0] = Piece.new("pawn", "black")
-board.board[0][0]
-p board.check_move?([0,0], [4,0])
-board.board[0][0]
+#board.board[2][0] = Piece.new("pawn", "black")
+#board.board[1][1] = Piece.new("queen", "white")
+
 # board.display
 # board.move_piece([1,0],[3,0])
 # board.display
