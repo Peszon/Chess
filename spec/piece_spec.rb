@@ -15,8 +15,8 @@ describe Piece do
   end
 
   describe '#initalize' do
-    it 'holds information about colour, subclass and possible moves' do
-      expect(piece.colour).to eql('white')
+    it 'holds information about color, subclass and possible moves' do
+      expect(piece.color).to eql('white')
       expect(piece.subclass).to eql('rook')
     end
   end

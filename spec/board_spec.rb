@@ -68,7 +68,9 @@ describe Board do
       end
 
       it "it isn't a legal move for the piece" do
-        expect(board.check_move?([1, 0], [4, 0])).to be false
+        expect(board.check_move?([1, 1], [4, 1])).to be false
+        expect(board.check_move?([1, 1], [3, 3])).to be false
+        expect(board.check_move?([1, 1], [2, 1])).to be true
       end
 
       it 'the move is out of bounds' do

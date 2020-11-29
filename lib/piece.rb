@@ -102,51 +102,51 @@ class Piece
   def self.clear_out_of_bounds(all_moves)
     all_moves.reject do |move_coordinates|
       move_coordinates[0] < 0 ||
-      move_coordinates[0] > 7 ||
-      move_coordinates[1] > 7 ||
-      move_coordinates[1] < 0
+        move_coordinates[0] > 7 ||
+        move_coordinates[1] > 7 ||
+        move_coordinates[1] < 0
     end
   end
 
   def self.get_symbol(subclass, color)
     case subclass
-    when "pawn"
-      if color == "black"
+    when 'pawn'
+      if color == 'black'
         "\u2659"
       else
         "\u265F"
-      end 
-    when "rook"
-      if color == "black"
+      end
+    when 'rook'
+      if color == 'black'
         "\u2656"
       else
         "\u265C"
-      end 
-    when "bishop"
-      if color == "black"
+      end
+    when 'bishop'
+      if color == 'black'
         "\u2657"
       else
         "\u265D"
-      end 
-    when "knight"
-      if color == "black"
+      end
+    when 'knight'
+      if color == 'black'
         "\u2658"
       else
         "\u265E"
-      end 
-    when "queen"
-      if color == "black"
+      end
+    when 'queen'
+      if color == 'black'
         "\u2655"
       else
         "\u265B"
-      end 
-    when "king"
-      if color == "black"
+      end
+    when 'king'
+      if color == 'black'
         "\u2654"
       else
         "\u265A"
-      end 
-    end 
+      end
+    end
   end
 
   def initialize(subclass, color)
@@ -171,6 +171,6 @@ end
 # p queen.possible_moves.call([0,0])
 # king = Piece.new("king", "white")
 # puts king.symbol
-#print king.symbol.encode("utf-8")
+# print king.symbol.encode("utf-8")
 # puts "\u2654".encode('utf-8')
 # p king.possible_moves.call([0,0])
