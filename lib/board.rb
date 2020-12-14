@@ -111,12 +111,12 @@ class Board
   end
 
   def check_move?(start_coordinates, end_coordinates) # seperating the helper methods in legal_moves and check_checks due to legal_moves need to be used in check_checks.
-    return false unless check_move_in_bounds?(start_coordinates, end_coordinates)
+    return false unless check_move_in_bounds?(start_coordinates, end_coordinates) && @board[start_coordinates[0]][start_coordinates[1]] != nil
 
     if @board[start_coordinates[0]][start_coordinates[1]].subclass == 'pawn'
       return false unless check_pawn_taking_diagonally?(start_coordinates, end_coordinates) &&
-                          check_pawn_moving_forward?(start_coordinates, end_coordinates)                          
-                          #check_enpassant?(start_coordinates, end_coordinates)
+                          check_pawn_moving_forward?(start_coordinates, end_coordinates) &&                         
+                          check_enpassant?(start_coordinates, end_coordinates)
     end
     return false unless check_start_and_end?(start_coordinates, end_coordinates) &&
                         check_jumping?(start_coordinates, end_coordinates) &&
@@ -130,20 +130,30 @@ class Board
     if start_coordinates[1] - end_coordinates[1] != 0 
       return true
     else
-      return true if @board[end_coordinates[0]][end_coordinates[1]].nil?
+      return false unless @board[end_coordinates[0]][end_coordinates[1]].nil?
     end 
 
-    false
+    true
   end
   
   def check_pawn_taking_diagonally?(start_coordinates, end_coordinates)
     if start_coordinates[1] - end_coordinates[1] == 0
       return true
     else 
-      return true if @board[end_coordinates[0]][end_coordinates[1]]&.color != nil && @board[end_coordinates[0]][end_coordinates[1]]&.color != @next_move.color
+      return false unless @board[end_coordinates[0]][end_coordinates[1]]&.color != nil && @board[end_coordinates[0]][end_coordinates[1]]&.color != @next_move.color
     end
 
-    false
+    true
+  end 
+
+  def check_enpassant?(start_coordinates, end_coordinates)
+    if @board[start_coordinates[0]][start_coordinates[1]].color == "white" 
+      return false unless start_coordinates[0] == 1 && @board[start_coordinates[0]][start_coordinates[1] + 1].nil? && @board[start_coordinates[0]][start_coordinates[1] + 2].nil?
+    else
+      return false unless start_coordinates[0] == 6 && @board[start_coordinates[0]][start_coordinates[1] - 1].nil? && @board[start_coordinates[0]][start_coordinates[1] - 2].nil?
+    end 
+
+    true
   end 
 
   def check_piece_moves?(start_coordinates, end_coordinates)
@@ -159,13 +169,13 @@ class Board
     true
   end
 
-  def check_start_and_end?(start_coordinates, end_coordinates) # can be a bit wonky aswell
+  def check_start_and_end?(start_coordinates, end_coordinates)
     return false if @board[start_coordinates[0]][start_coordinates[1]].nil? # there is no piece to move
 
     if @board[end_coordinates[0]][end_coordinates[1]].nil? # Checks that the moving piece is the same as the players whos turn it is. The end point has no piece and therefore no need to check it's color.
       return false if @board[start_coordinates[0]][start_coordinates[1]].color != @next_move.color
     else # checks that the moving piece is the same color as the player and opposite of the piece it attacks.
-      if @board[start_coordinates[0]][start_coordinates[1]].color != @next_move.color || @board[end_coordinates[0]][end_coordinates[1]].color == @next_move.color
+      if @board[start_coordinates[0]][start_coordinates[1]].color != @nexxt_move.color || @board[end_coordinates[0]][end_coordinates[1]].color == @next_move.color
         return false
       end
     end
@@ -256,15 +266,18 @@ board = Board.new
 # board.board[0][7] = nil
 # board.board[2][4] = Piece.new("rook", "black")
 # board.next_move = (board.players.select { |players| players != board.next_move })[0]
-#board.board[2][1] = Piece.new("pawn", "black")
-p board.check_move_in_bounds?([1, 0], [2, 1])
-p board.check_jumping?([1, 0], [2, 1])
-p board.check_piece_moves?([1, 0], [2, 1])
-p board.check_start_and_end?([1, 0], [2, 1])
-p board.check_checks?([1, 0], [2, 1])
-p board.check_pawn_moving_forward?([1, 0], [2, 1])
-p board.check_pawn_taking_diagonally?([1, 0], [2, 1])
-p board.check_move?([1, 0], [2, 1])
+board.board[2][0] = Piece.new("rook", "white")
+p board.check_move_in_bounds?([2, 0], [4, 0])
+p board.check_jumping?([2, 0], [4, 0])
+p board.check_piece_moves?([2, 0], [4, 0])
+p board.check_start_and_end?([2, 0], [4, 0])
+p board.check_checks?([2, 0], [4, 0])
+p board.check_pawn_moving_forward?([2, 0], [4, 0])
+p board.check_pawn_taking_diagonally?([2, 0], [4, 0])
+p board.check_enpassant?([2, 0], [4, 0])
+p board.check_move?([2, 0], [4, 0])
+
+#debugger 
 board.display_board
 # board.board[0][7] = Piece.new("queen", "white")
 # p board.board[0][7]
