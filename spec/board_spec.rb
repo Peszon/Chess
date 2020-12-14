@@ -70,7 +70,7 @@ describe Board do
       it "it isn't a legal move for the piece" do
         expect(board.check_move?([1, 1], [4, 1])).to be false
         expect(board.check_move?([1, 1], [3, 3])).to be false
-        expect(board.check_move?([1, 1], [2, 1])).to be true
+        expect(board.check_piece_move?([1, 1], [2, 1])).to be true
       end
 
       it 'the move is out of bounds' do
@@ -92,7 +92,7 @@ describe Board do
 
     describe 'special pawn rules: ' do
       it "shouldn't move forward when there is a piece in the way; friendly or not" do
-        expect(board.check_move?([1,0], [2,0])).to be true 
+        expect(board.check_move?([1, 0], [2, 0])).to be true
         board.board[0][0] = Piece.new('white', 'pawn')
         expect(board.check_move?([0, 0], [1, 0])).to be false
         board.board[0][0] = Piece.new('black', 'pawn')
