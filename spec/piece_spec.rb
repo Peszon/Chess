@@ -5,12 +5,12 @@ require './lib/piece'
 require 'rspec'
 
 describe Piece do
-  let(:piece) { Piece.new('white', 'pawn') }
+  let(:piece) { Piece.new('rook', 'white') }
 
   describe '::possible moves' do
     it 'generates a proc that predicts how the piece moves' do
-      expect(Piece.get_moveset_proc('pawn')).to be_kind_of(Proc)
-      expect(piece.possible_moves.call([1, 0])).to eq([[2, -1], [2, 0], [3, 0], [2, 1]])
+      expect(Piece.get_moveset_proc('pawn', 'white')).to be_kind_of(Proc)
+      expect(piece.possible_moves.call([1, 0])).to eq([[0, 0], [1, 1], [1, 2], [2, 0], [1, 3], [3, 0], [1, 4], [4, 0], [1, 5], [5, 0], [1, 6], [6, 0], [1, 7], [7, 0]])
     end
   end
 

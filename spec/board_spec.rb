@@ -44,7 +44,7 @@ describe Board do
     it 'add to the move history' do
       expect(board.move_history).to eql([])
       board.move_piece([1, 0], [2, 0])
-      expect(board.move_history).to eql([[[1, 0], [2, 0]]])
+      expect(board.move_history).to eql([[[1, 0], [2, 0], 32]])
     end
 
     it 'should switch player that occupies @next_move' do
@@ -154,10 +154,11 @@ describe Board do
       before(:each) { board.instance_variable_set(:@board, Array.new(8) { Array.new(8) }) }
 
       it 'should return true if the player cant make a legal move' do
+        board.board = Array.new(8) { Array.new(8) }
         board.board[7][1] = Piece.new('rook', 'black')
         board.board[1][7] = Piece.new('rook', 'black')
         board.board[0][0] = Piece.new('king', 'white')
-        board.instance_variable_set(:@next_move, 'white')
+        board.instance_variable_set(:@next_move, Player.new("white"))
 
         expect(board.draw?).to be true
       end
@@ -175,7 +176,7 @@ describe Board do
         board.board[1][7] = Piece.new('rook', 'black')
         board.board[0][0] = Piece.new('king', 'white')
         board.board[6][5] = Piece.new('pawn', 'white')
-        board.instance_variable_set(:@next_move, 'white')
+        board.instance_variable_set(:@next_move, Player.new('white'))
 
         expect(board.draw?).to be false
       end
@@ -185,12 +186,13 @@ describe Board do
       before(:each) { board.instance_variable_set(:@board, Array.new(8) { Array.new(8) }) }
 
       it 'should return true if there are no possible ways to escape the check' do
-        board.board[0][7] = Piece.new('pawn', 'white')
+        board.board = Array.new(8) { Array.new(8) }
+        board.board[0][7] = Piece.new('rook', 'black')
         board.board[1][0] = Piece.new('pawn', 'white')
-        board.board[1][1] = Piece.new('king', 'white')
-        board.board[0][0] = Piece.new('rook', 'black')
+        board.board[1][1] = Piece.new('pawn', 'white')
+        board.board[0][0] = Piece.new('king', 'white')
 
-        board.instance_variable_set(:@next_move, 'white')
+        board.instance_variable_set(:@next_move, Player.new('white'))
 
         expect(board.lost?).to be true
       end
@@ -202,7 +204,7 @@ describe Board do
         board.board[5][6] = Piece.new('rook', 'white')
         board.board[0][0] = Piece.new('rook', 'black')
 
-        board.instance_variable_set(:@next_move, 'white')
+        board.instance_variable_set(:@next_move, Player.new('white'))
 
         expect(board.lost?).to be false
       end

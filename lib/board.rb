@@ -99,9 +99,12 @@ class Board
     end
   end
 
-  def move_piece(start_coordinates, end_coordintes)
-    @board[end_coordintes[0]][end_coordintes[1]] = @board[start_coordinates[0]][start_coordinates[1]]
-    @board[start_coordinates[0]][start_coordinates[1]] = nil
+  def move_piece(start_coordinates, end_coordinates)
+    if @next_move.color == "white" && start_coordinates == [0, 4] && (end_coordinates == [0, 6] || end_coordinates == [0, 1])
+    else 
+      @board[end_coordinates[0]][end_coordinates[1]] = @board[start_coordinates[0]][start_coordinates[1]]
+      @board[start_coordinates[0]][start_coordinates[1]] = nil
+    end 
 
     amount_of_pieces = 0
     @board.each { |row| row.each { |piece| amount_of_pieces += 1 if piece.kind_of?(Piece) } } 
@@ -119,11 +122,12 @@ class Board
                         check_piece_moves?(start_coordinates, end_coordinates) &&
                         check_checks?(start_coordinates, end_coordinates)
 
-
     if @board[start_coordinates[0]][start_coordinates[1]].subclass == 'pawn'
-      return false unless check_pawn_taking_diagonally?(start_coordinates, end_coordinates) &&
-                          check_pawn_moving_forward?(start_coordinates, end_coordinates) &&                         
-                          check_pawn_two_steps?(start_coordinates, end_coordinates)
+      return false unless check_pawn_moves?(start_coordinates, end_coordinates)
+    end
+
+    if @board[start_coordinates[0]][start_coordinates[1]].subclass == 'king'
+      return false unless check_castling(start_coordinates, end_coordinates)
     end
 
     unless @board[start_coordinates[0]][start_coordinates[1]].subclass == "knight"
@@ -132,6 +136,57 @@ class Board
 
     true
   end
+
+  def check_castling?(start_coordinates, end_coordinates)
+    return true if (start_coordinates[1] - end_coordinates[1]).abs < 2
+    return false if @move_history.length < 1
+
+    if @next_move.color == "white"
+      if start_coordinates[1] - end_coordinates[1] > 0
+        if @board[0][3].nil? && @board[0][2].nil? && @board[0][1].nil? && check_checks? && check_checks?([0,4], [0,3]) && check_checks?([0, 4], [0, 2]) 
+          @move_history.each do |move|
+            return false if move.include?([0, 0]) || move.include?([0, 4]) 
+          end
+          
+          return true 
+        end 
+      else
+        if @board[0][5].nil? && @board[0][6].nil? && check_checks? && check_checks?([0,4], [0,5]) && check_checks?([0, 4], [0, 6]) 
+          @move_history.each do |move|
+            return false if move.include?([0, 7]) || move.include?([0, 4]) 
+          end 
+
+          return true 
+        end 
+      end 
+    else
+      if start_coordinates[1] - end_coordinates[1] > 0
+        if @board[7][3].nil? && @board[7][2].nil? && @board[7][1].nil? && check_checks? && check_checks?([7,4], [7,3]) && check_checks?([7, 4], [7, 2]) 
+          @move_history.each do |move|
+            return false if move.include?([7, 0]) || move.include?([7, 4]) 
+          end 
+          
+          return true 
+        end 
+      else
+        if @board[7][5].nil? && @board[7][6].nil? && check_checks? && check_checks?([7,4], [7,5]) && check_checks?([7, 4], [7, 6]) 
+          @move_history.each do |move|
+            return false if move.include?([7, 7]) || move.include?([7, 4]) 
+          end 
+
+          return true 
+        end 
+      end 
+    end
+
+    false
+  end 
+
+  def check_pawn_moves?(start_coordinates, end_coordinates)
+      check_pawn_moving_forward?(start_coordinates, end_coordinates) &&
+      check_pawn_taking_diagonally?(start_coordinates, end_coordinates) &&
+      check_pawn_two_steps?(start_coordinates, end_coordinates)
+  end 
 
   def check_pawn_moving_forward?(start_coordinates, end_coordinates)
     if start_coordinates[1] - end_coordinates[1] != 0 
@@ -207,7 +262,7 @@ class Board
     true
   end
 
-  def check_jumping?(start_coordinates, end_coordinates)
+  def check_jumping?(start_coordinates, end_coordinates, board = @board)
     row_dif = (end_coordinates[0] - start_coordinates[0])
     column_dif = (end_coordinates[1] - start_coordinates[1]) # gets the x and y differential between the current coordinates and the new ones
 
@@ -222,7 +277,7 @@ class Board
     column_index = start_coordinates[1] + column_increment
 
     while row_index != end_coordinates[0] || column_index != end_coordinates[1]
-      unless @board[row_index][column_index].nil?
+      unless board[row_index][column_index].nil?
         return false
       end # checks that the squares between the two positons are empty.
 
@@ -233,14 +288,16 @@ class Board
     true
   end
 
-  def check_checks?(start_coordinates, end_coordinates) # makes the move then checks every opposing piece to see if they can make a legal move that hits the king
+  def check_checks?(start_coordinates = nil, end_coordinates = nil) # makes the move then checks every opposing piece to see if they can make a legal move that hits the king
     board_scenario = []
-    @board.each_with_index do |row, _i|
+    @board.each do |row|
       board_scenario << row.clone
     end
 
-    board_scenario[end_coordinates[0]][end_coordinates[1]] = board_scenario[start_coordinates[0]][start_coordinates[1]]
-    board_scenario[start_coordinates[0]][start_coordinates[1]] = nil
+    unless start_coordinates.nil? || end_coordinates.nil?
+      board_scenario[end_coordinates[0]][end_coordinates[1]] = board_scenario[start_coordinates[0]][start_coordinates[1]]
+      board_scenario[start_coordinates[0]][start_coordinates[1]] = nil
+    end 
 
     king_coordinates = []
     board_scenario.each_with_index do |row, row_index|
@@ -258,7 +315,11 @@ class Board
 
     attacking_pieces.each do |piece_info|
       if check_piece_moves?(piece_info, king_coordinates) && check_move_in_bounds?(piece_info, king_coordinates)
-        return false if check_jumping?(piece_info, king_coordinates)
+        if board_scenario[piece_info[0]][piece_info[1]].subclass == "pawn"
+          return false if check_pawn_moves?(piece_info, king_coordinates)
+        end 
+        return false if board_scenario[piece_info[0]][piece_info[1]].subclass == "knight"
+        return false if check_jumping?(piece_info, king_coordinates, board_scenario)
       end
     end
 
@@ -274,59 +335,43 @@ class Board
       return true if @move_history[-100][2] == @move_history[-1][2]  
     end
 
-    @board.each_with_index do |row, _row_index|
+    moveable_pieces = []
+    @board.each_with_index do |row, row_index|
       row.each_with_index do |piece, column_index|
+        moveable_pieces << [row_index, column_index] if piece&.color == @next_move.color
       end
     end
+
+    piece_moves = moveable_pieces.map { |piece| @board[piece[0]][piece[1]].possible_moves.call([piece[0], piece[1]])} 
+    piece_moves.each_with_index do |moves, start_index|
+      return false if moves.any? { |move| check_move?(moveable_pieces[start_index], move) }
+    end 
+
+    true
   end
-end
-# debugger
+
+  def lost?
+    draw? && !check_checks? ? true : false
+  end 
+end 
 
 board = Board.new
+board.board = Array.new(8) { Array.new(8) }
+board.move_piece([3, 3], [4, 3])
+board.move_piece([4, 3], [3, 3]) 
 
-# board.check_checks?([1,1],[2,1])
-# board.board[1][4] = nil
-# board.board[1][3] = nil
-# board.board[1][5] = nil
-# board.board[1][6] = nil
-# board.board[7][1] = nil
-# board.board[7][7] = nil
-# board.board[0][1] = nil
-# board.board[0][7] = nil
-# board.board[2][4] = Piece.new("rook", "black")
-# board.next_move = (board.players.select { |players| players != board.next_move })[0]
-#board.board[2][0] = Piece.new("rook", "white")
-# board.board[3][0] = Piece.new("rook", "white")
-# p board.check_move_in_bounds?([0, 0], [5, 0])
+board.board[0][0] = Piece.new("rook", "white")
+board.board[0][4] = Piece.new("king", "white")
+p board.check_castling?([0, 4], [0, 2])
 
-#p board.check_move_in_bounds?([1, 0], [3, 0])
-#p board.check_jumping?([1, 0], [3, 0])
-#p board.check_piece_moves?([1, 0], [3, 0])
-#p board.check_start_and_end?([1, 0], [3, 0])
-#p board.check_checks?([1, 0], [3, 0])
-#p board.check_pawn_moving_forward?([1, 0], [3, 0])
-#p board.check_pawn_taking_diagonally?([1, 0], [3, 0])
-#p board.check_pawn_two_steps?([1, 0], [3, 0])
-#p "------------"
-#p board.check_move?([1, 0], [2, 0])
-#p board.check_move?([0, 0], [1, 0])
-#p board.check_move?([1, 0], [3, 0]) 
-#board.display_board
-# board.board[0][7] = Piece.new("queen", "white")
-# p board.board[0][7]
+board.move_piece([0, 0], [2, 0])
+board.move_piece([2, 0], [0, 0])
+board.display_board
 
-# board.board[2][0] = Piece.new("pawn", "black")
-# board.board[1][1] = Piece.new("queen", "white")
+p board.check_castling?([0, 4], [0, 2])
+p board.check_castling?([0, 4], [0, 6]) 
 
-# board.display
-# board.move_piece([1,0],[3,0])
-# board.display
-# board.move_piece([6,0],[4,0])
-# board.display
-# board.next_move = 'black'
-# p board
-# puts ' '
-# board.display
-# print "\u2654".encode('utf-8').blue.colorize(:background => :white)
-# print "this is blue".blue
-# p board.board[1][1].possible_moves.call([1,1])
+board.board[4][4] = Piece.new("rook", "black")
+
+p board.check_castling?([0, 4], [0, 2])
+
