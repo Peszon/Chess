@@ -6,7 +6,6 @@ require_relative 'piece'
 require_relative 'player'
 
 require 'colorize'
-require 'byebug'
 
 class Board
   attr_accessor :board, :move_history, :next_move, :players
@@ -100,14 +99,41 @@ class Board
   end
 
   def move_piece(start_coordinates, end_coordinates)
-    if @next_move.color == "white" && start_coordinates == [0, 4] && (end_coordinates == [0, 6] || end_coordinates == [0, 1])
-    else 
+    if @board[start_coordinates[0]][start_coordinates[1]]&.subclass == 'king' && (start_coordinates[1] - end_coordinates[1]).abs > 1
+      if @next_move.color == 'white'
+        if start_coordinates[1] > end_coordinates[1]
+          @board[0][0] = nil
+          @board[0][1] = nil
+          @board[0][2] = Piece.new('king', 'white')
+          @board[0][3] = Piece.new('rook', 'white')
+          @board[0][4] = nil
+        else
+          @board[0][4] = nil
+          @board[0][5] = Piece.new('rook', 'white')
+          @board[0][6] = Piece.new('king', 'white')
+          @board[0][7] = nil
+        end
+      else
+        if start_coordinates[1] > end_coordinates[1]
+          @board[7][0] = nil
+          @board[7][1] = nil
+          @board[7][2] = Piece.new('king', 'black')
+          @board[7][3] = Piece.new('rook', 'black')
+          @board[7][4] = nil
+        else
+          @board[7][4] = nil
+          @board[7][5] = Piece.new('rook', 'black')
+          @board[7][6] = Piece.new('king', 'black')
+          @board[7][7] = nil
+        end
+      end
+    else
       @board[end_coordinates[0]][end_coordinates[1]] = @board[start_coordinates[0]][start_coordinates[1]]
       @board[start_coordinates[0]][start_coordinates[1]] = nil
-    end 
+    end
 
     amount_of_pieces = 0
-    @board.each { |row| row.each { |piece| amount_of_pieces += 1 if piece.kind_of?(Piece) } } 
+    @board.each { |row| row.each { |piece| amount_of_pieces += 1 if piece.is_a?(Piece) } }
 
     @move_history << [start_coordinates, end_coordinates, amount_of_pieces]
 
@@ -116,7 +142,9 @@ class Board
   end
 
   def check_move?(start_coordinates, end_coordinates) # seperating the helper methods in legal_moves and check_checks due to legal_moves need to be used in check_checks.
-    return false unless check_move_in_bounds?(start_coordinates, end_coordinates) && @board[start_coordinates[0]][start_coordinates[1]] != nil
+    unless check_move_in_bounds?(start_coordinates, end_coordinates) && !@board[start_coordinates[0]][start_coordinates[1]].nil?
+      return false
+    end
 
     return false unless check_start_and_end?(start_coordinates, end_coordinates) &&
                         check_piece_moves?(start_coordinates, end_coordinates) &&
@@ -130,7 +158,7 @@ class Board
       return false unless check_castling(start_coordinates, end_coordinates)
     end
 
-    unless @board[start_coordinates[0]][start_coordinates[1]].subclass == "knight"
+    unless @board[start_coordinates[0]][start_coordinates[1]].subclass == 'knight'
       return false unless check_jumping?(start_coordinates, end_coordinates)
     end
 
@@ -141,99 +169,103 @@ class Board
     return true if (start_coordinates[1] - end_coordinates[1]).abs < 2
     return false if @move_history.length < 1
 
-    if @next_move.color == "white"
+    if @next_move.color == 'white'
       if start_coordinates[1] - end_coordinates[1] > 0
-        if @board[0][3].nil? && @board[0][2].nil? && @board[0][1].nil? && check_checks? && check_checks?([0,4], [0,3]) && check_checks?([0, 4], [0, 2]) 
+        if @board[0][3].nil? && @board[0][2].nil? && @board[0][1].nil? && check_checks? && check_checks?([0, 4], [0, 3]) && check_checks?([0, 4], [0, 2])
           @move_history.each do |move|
-            return false if move.include?([0, 0]) || move.include?([0, 4]) 
+            return false if move.include?([0, 0]) || move.include?([0, 4])
           end
-          
-          return true 
-        end 
-      else
-        if @board[0][5].nil? && @board[0][6].nil? && check_checks? && check_checks?([0,4], [0,5]) && check_checks?([0, 4], [0, 6]) 
-          @move_history.each do |move|
-            return false if move.include?([0, 7]) || move.include?([0, 4]) 
-          end 
 
-          return true 
-        end 
-      end 
+          return true
+        end
+      else
+        if @board[0][5].nil? && @board[0][6].nil? && check_checks? && check_checks?([0, 4], [0, 5]) && check_checks?([0, 4], [0, 6])
+          @move_history.each do |move|
+            return false if move.include?([0, 7]) || move.include?([0, 4])
+          end
+
+          return true
+        end
+      end
     else
       if start_coordinates[1] - end_coordinates[1] > 0
-        if @board[7][3].nil? && @board[7][2].nil? && @board[7][1].nil? && check_checks? && check_checks?([7,4], [7,3]) && check_checks?([7, 4], [7, 2]) 
+        if @board[7][3].nil? && @board[7][2].nil? && @board[7][1].nil? && check_checks? && check_checks?([7, 4], [7, 3]) && check_checks?([7, 4], [7, 2])
           @move_history.each do |move|
-            return false if move.include?([7, 0]) || move.include?([7, 4]) 
-          end 
-          
-          return true 
-        end 
-      else
-        if @board[7][5].nil? && @board[7][6].nil? && check_checks? && check_checks?([7,4], [7,5]) && check_checks?([7, 4], [7, 6]) 
-          @move_history.each do |move|
-            return false if move.include?([7, 7]) || move.include?([7, 4]) 
-          end 
+            return false if move.include?([7, 0]) || move.include?([7, 4])
+          end
 
-          return true 
-        end 
-      end 
+          return true
+        end
+      else
+        if @board[7][5].nil? && @board[7][6].nil? && check_checks? && check_checks?([7, 4], [7, 5]) && check_checks?([7, 4], [7, 6])
+          @move_history.each do |move|
+            return false if move.include?([7, 7]) || move.include?([7, 4])
+          end
+
+          return true
+        end
+      end
     end
 
     false
-  end 
+  end
 
   def check_pawn_moves?(start_coordinates, end_coordinates)
-      check_pawn_moving_forward?(start_coordinates, end_coordinates) &&
-      check_pawn_taking_diagonally?(start_coordinates, end_coordinates) &&
-      check_pawn_two_steps?(start_coordinates, end_coordinates)
-  end 
+    check_pawn_moving_forward?(start_coordinates, end_coordinates) &&
+    check_pawn_taking_diagonally?(start_coordinates, end_coordinates) &&
+    check_pawn_two_steps?(start_coordinates, end_coordinates)
+  end
 
   def check_pawn_moving_forward?(start_coordinates, end_coordinates)
-    if start_coordinates[1] - end_coordinates[1] != 0 
+    if start_coordinates[1] - end_coordinates[1] != 0
       return true
     else
       return false unless @board[end_coordinates[0]][end_coordinates[1]].nil?
-    end 
+    end
 
     true
   end
-  
-  def check_pawn_taking_diagonally?(start_coordinates, end_coordinates) #also include a check for en-passant
+
+  def check_pawn_taking_diagonally?(start_coordinates, end_coordinates) # also include a check for en-passant
     return true if start_coordinates[1] - end_coordinates[1] == 0
     return false if start_coordinates[1] - end_coordinates[1] != 0 && @move_history.empty?
 
     if @board[end_coordinates[0]][end_coordinates[1]]&.color == @next_move.color
-      return false 
-    elsif @board[end_coordinates[0]][end_coordinates[1]].nil? && @board[@move_history[0][1][0]][@move_history[0][1][1]]&.subclass == "pawn"
-      if @next_move.color == "white"
-        return true if @move_history[-1][0][0] == 6 && 
-                       @move_history[-1][1][0] == 4 && 
-                       @move_history[-1][1][1] == end_coordinates[1] && 
+      return false
+    elsif @board[end_coordinates[0]][end_coordinates[1]].nil? && @board[@move_history[0][1][0]][@move_history[0][1][1]]&.subclass == 'pawn'
+      if @next_move.color == 'white'
+        return true if @move_history[-1][0][0] == 6 &&
+                       @move_history[-1][1][0] == 4 &&
+                       @move_history[-1][1][1] == end_coordinates[1] &&
                        end_coordinates[0] == 5
-      else  
-        return true if @move_history[-1][0][0] == 1 && 
-                       @move_history[-1][1][0] == 3 && 
-                       @move_history[-1][1][1] == end_coordinates[1] && 
+      else
+        return true if @move_history[-1][0][0] == 1 &&
+                       @move_history[-1][1][0] == 3 &&
+                       @move_history[-1][1][1] == end_coordinates[1] &&
                        end_coordinates[0] == 2
-      end 
+      end
     elsif @board[end_coordinates[0]][end_coordinates[1]].nil?
       return false
-    end 
+    end
 
     true
-  end 
+  end
 
   def check_pawn_two_steps?(start_coordinates, end_coordinates)
     return true if (start_coordinates[0] - end_coordinates[0]).abs < 2
 
-    if @board[start_coordinates[0]][start_coordinates[1]]&.color == "white" 
-      return false unless start_coordinates[0] == 1 && @board[start_coordinates[0] + 1][start_coordinates[1]].nil? && @board[start_coordinates[0] + 2][start_coordinates[1]].nil?
+    if @board[start_coordinates[0]][start_coordinates[1]]&.color == 'white'
+      unless start_coordinates[0] == 1 && @board[start_coordinates[0] + 1][start_coordinates[1]].nil? && @board[start_coordinates[0] + 2][start_coordinates[1]].nil?
+        return false
+      end
     else
-      return false unless start_coordinates[0] == 6 && @board[start_coordinates[0] + 1][start_coordinates[1]].nil? && @board[start_coordinates[0] - 2][start_coordinates[1]].nil?
-    end 
+      unless start_coordinates[0] == 6 && @board[start_coordinates[0] + 1][start_coordinates[1]].nil? && @board[start_coordinates[0] - 2][start_coordinates[1]].nil?
+        return false
+      end
+    end
 
     true
-  end 
+  end
 
   def check_piece_moves?(start_coordinates, end_coordinates)
     possible_moves = @board[start_coordinates[0]][start_coordinates[1]].possible_moves.call(start_coordinates)
@@ -297,7 +329,7 @@ class Board
     unless start_coordinates.nil? || end_coordinates.nil?
       board_scenario[end_coordinates[0]][end_coordinates[1]] = board_scenario[start_coordinates[0]][start_coordinates[1]]
       board_scenario[start_coordinates[0]][start_coordinates[1]] = nil
-    end 
+    end
 
     king_coordinates = []
     board_scenario.each_with_index do |row, row_index|
@@ -314,13 +346,15 @@ class Board
     end
 
     attacking_pieces.each do |piece_info|
-      if check_piece_moves?(piece_info, king_coordinates) && check_move_in_bounds?(piece_info, king_coordinates)
-        if board_scenario[piece_info[0]][piece_info[1]].subclass == "pawn"
-          return false if check_pawn_moves?(piece_info, king_coordinates)
-        end 
-        return false if board_scenario[piece_info[0]][piece_info[1]].subclass == "knight"
-        return false if check_jumping?(piece_info, king_coordinates, board_scenario)
+      unless check_piece_moves?(piece_info, king_coordinates) && check_move_in_bounds?(piece_info, king_coordinates)
+        next
       end
+
+      if board_scenario[piece_info[0]][piece_info[1]].subclass == 'pawn'
+        return false if check_pawn_moves?(piece_info, king_coordinates)
+      end
+      return false if board_scenario[piece_info[0]][piece_info[1]].subclass == 'knight'
+      return false if check_jumping?(piece_info, king_coordinates, board_scenario)
     end
 
     true
@@ -332,7 +366,7 @@ class Board
 
   def draw?
     if @move_history.length >= 100
-      return true if @move_history[-100][2] == @move_history[-1][2]  
+      return true if @move_history[-100][2] == @move_history[-1][2]
     end
 
     moveable_pieces = []
@@ -342,36 +376,15 @@ class Board
       end
     end
 
-    piece_moves = moveable_pieces.map { |piece| @board[piece[0]][piece[1]].possible_moves.call([piece[0], piece[1]])} 
+    piece_moves = moveable_pieces.map { |piece| @board[piece[0]][piece[1]].possible_moves.call([piece[0], piece[1]]) }
     piece_moves.each_with_index do |moves, start_index|
       return false if moves.any? { |move| check_move?(moveable_pieces[start_index], move) }
-    end 
+    end
 
     true
   end
 
   def lost?
     draw? && !check_checks? ? true : false
-  end 
-end 
-
-board = Board.new
-board.board = Array.new(8) { Array.new(8) }
-board.move_piece([3, 3], [4, 3])
-board.move_piece([4, 3], [3, 3]) 
-
-board.board[0][0] = Piece.new("rook", "white")
-board.board[0][4] = Piece.new("king", "white")
-p board.check_castling?([0, 4], [0, 2])
-
-board.move_piece([0, 0], [2, 0])
-board.move_piece([2, 0], [0, 0])
-board.display_board
-
-p board.check_castling?([0, 4], [0, 2])
-p board.check_castling?([0, 4], [0, 6]) 
-
-board.board[4][4] = Piece.new("rook", "black")
-
-p board.check_castling?([0, 4], [0, 2])
-
+  end
+end

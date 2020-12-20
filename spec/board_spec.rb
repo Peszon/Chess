@@ -86,7 +86,7 @@ describe Board do
         expect(board.check_move?([0, 0], [5, 0])).to be false
         board.board[3][0] = Piece.new('pawn', 'black')
         board.board[1][0] = nil
-        expect(board.check_move?([0, 0], [5, 0])).to be false #here something is wonky
+        expect(board.check_move?([0, 0], [5, 0])).to be false # here something is wonky
       end
     end
 
@@ -111,8 +111,8 @@ describe Board do
 
       it 'should only be able to move diagonally when it takes' do
         expect(board.check_move?([1, 0], [2, 1])).to be false
-        board.move_piece([1,4], [2,4])
-        board.move_piece([6,1], [6,2])
+        board.move_piece([1, 4], [2, 4])
+        board.move_piece([6, 1], [6, 2])
         board.board[2][1] = Piece.new('pawn', 'black')
         board.board[2][3] = Piece.new('pawn', 'white')
         expect(board.check_move?([1, 0], [2, 1])).to be true
@@ -158,7 +158,7 @@ describe Board do
         board.board[7][1] = Piece.new('rook', 'black')
         board.board[1][7] = Piece.new('rook', 'black')
         board.board[0][0] = Piece.new('king', 'white')
-        board.instance_variable_set(:@next_move, Player.new("white"))
+        board.instance_variable_set(:@next_move, Player.new('white'))
 
         expect(board.draw?).to be true
       end

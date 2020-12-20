@@ -111,43 +111,43 @@ class Piece
 
   def self.get_symbol(subclass, color)
     case subclass
-    when "pawn"
-      if color == "black"
+    when 'pawn'
+      if color == 'black'
         "\u2659"
       else
         "\u265F"
-      end 
-    when "rook"
-      if color == "black"
+      end
+    when 'rook'
+      if color == 'black'
         "\u2656"
       else
         "\u265C"
-      end 
-    when "bishop"
-      if color == "black"
+      end
+    when 'bishop'
+      if color == 'black'
         "\u2657"
       else
         "\u265D"
-      end 
-    when "knight"
-      if color == "black"
+      end
+    when 'knight'
+      if color == 'black'
         "\u2658"
       else
         "\u265E"
-      end 
-    when "queen"
-      if color == "black"
+      end
+    when 'queen'
+      if color == 'black'
         "\u2655"
       else
         "\u265B"
-      end 
-    when "king"
-      if color == "black"
+      end
+    when 'king'
+      if color == 'black'
         "\u2654"
       else
         "\u265A"
-      end 
-    end 
+      end
+    end
   end
 
   def initialize(subclass, color)
