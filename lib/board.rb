@@ -6,6 +6,7 @@ require_relative 'piece'
 require_relative 'player'
 
 require 'colorize'
+require 'byebug'
 
 class Board
   attr_accessor :board, :move_history, :next_move, :players
@@ -134,11 +135,48 @@ class Board
 
     amount_of_pieces = 0
     @board.each { |row| row.each { |piece| amount_of_pieces += 1 if piece.is_a?(Piece) } }
-
     @move_history << [start_coordinates, end_coordinates, amount_of_pieces]
+
+    promotion
 
     @next_move = @players.reject { |player| player == @next_move }
     @next_move = @next_move[0]
+  end
+
+  def promotion
+    if @next_move.color == 'white'
+      promotion_coordinate = nil
+      @board[7].each_with_index { |piece, index| promotion_coordinate = index if piece&.subclass == 'pawn' }
+
+      unless promotion_coordinate.nil?
+        case @next_move.ask_for_promotion
+        when 1
+          @board[7][promotion_coordinate] = Piece.new('queen', 'white')
+        when 2
+          @board[7][promotion_coordinate] = Piece.new('rook', 'white')
+        when 3
+          @board[7][promotion_coordinate] = Piece.new('bishop', 'white')
+        when 4
+          @board[7][promotion_coordinate] = Piece.new('knight', 'white')
+        end
+      end
+    else
+      promotion_coordinate = nil
+      @board[0].each_with_index { |piece, index| promotion_coordinate = index if piece&.subclass == 'pawn' }
+
+      unless promotion_coordinate.nil?
+        case @next_move.ask_for_promotion
+        when 1
+          @board[0][promotion_coordinate] = Piece.new('queen', 'black')
+        when 2
+          @board[0][promotion_coordinate] = Piece.new('rook', 'black')
+        when 3
+          @board[0][promotion_coordinate] = Piece.new('bishop', 'black')
+        when 4
+          @board[0][promotion_coordinate] = Piece.new('knight', 'black')
+        end
+      end
+    end
   end
 
   def check_move?(start_coordinates, end_coordinates) # seperating the helper methods in legal_moves and check_checks due to legal_moves need to be used in check_checks.
@@ -155,7 +193,7 @@ class Board
     end
 
     if @board[start_coordinates[0]][start_coordinates[1]].subclass == 'king'
-      return false unless check_castling(start_coordinates, end_coordinates)
+      return false unless check_castling?(start_coordinates, end_coordinates)
     end
 
     unless @board[start_coordinates[0]][start_coordinates[1]].subclass == 'knight'
@@ -232,17 +270,17 @@ class Board
 
     if @board[end_coordinates[0]][end_coordinates[1]]&.color == @next_move.color
       return false
-    elsif @board[end_coordinates[0]][end_coordinates[1]].nil? && @board[@move_history[0][1][0]][@move_history[0][1][1]]&.subclass == 'pawn'
+    elsif @board[end_coordinates[0]][end_coordinates[1]].nil? && @board[@move_history[-1][1][0]][@move_history[-1][1][1]]&.subclass == 'pawn'
       if @next_move.color == 'white'
-        return true if @move_history[-1][0][0] == 6 &&
-                       @move_history[-1][1][0] == 4 &&
-                       @move_history[-1][1][1] == end_coordinates[1] &&
-                       end_coordinates[0] == 5
+        if @move_history[-1][0][0] == 6 && @move_history[-1][1][0] == 4 && @move_history[-1][1][1] == end_coordinates[1] && end_coordinates[0] == 5
+          @board[4][end_coordinates[1]] = nil
+          return true
+        end 
       else
-        return true if @move_history[-1][0][0] == 1 &&
-                       @move_history[-1][1][0] == 3 &&
-                       @move_history[-1][1][1] == end_coordinates[1] &&
-                       end_coordinates[0] == 2
+        if @move_history[-1][0][0] == 1 && @move_history[-1][1][0] == 3 && @move_history[-1][1][1] == end_coordinates[1] && end_coordinates[0] == 2
+          @board[3][end_coordinates[1]] = nil
+          return true
+        end 
       end
     elsif @board[end_coordinates[0]][end_coordinates[1]].nil?
       return false
@@ -259,7 +297,7 @@ class Board
         return false
       end
     else
-      unless start_coordinates[0] == 6 && @board[start_coordinates[0] + 1][start_coordinates[1]].nil? && @board[start_coordinates[0] - 2][start_coordinates[1]].nil?
+      unless start_coordinates[0] == 6 && @board[start_coordinates[0] - 1][start_coordinates[1]].nil? && @board[start_coordinates[0] - 2][start_coordinates[1]].nil?
         return false
       end
     end
