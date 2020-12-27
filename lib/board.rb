@@ -40,7 +40,7 @@ class Board
     @board = Array.new(8) { Array.new(8) }
     @players = [Player.new('white'), Player.new('black')]
     @next_move = @players[0]
-    @move_history = []
+    @move_history = [[[9,9], [9,9], 32]]
 
     Board.setting_the_board(self)
   end
@@ -51,21 +51,28 @@ class Board
         row = "#{row_index + 1} "
 
         0.upto(7) do |column_index|
-          if (row_index + column_index).even?
-            if @board[row_index][column_index].nil?
-              row += '   '.colorize(background: :black)
+          unless (@move_history[-1][0][0] == row_index && @move_history[-1][0][1] == column_index) || (@move_history[-1][1][0] == row_index && @move_history[-1][1][1] == column_index)
+            if (row_index + column_index).even?
+              if @board[row_index][column_index].nil?
+                row += '   '.colorize(background: :black)
+              else
+                row += ' '.colorize(background: :black) + @board[row_index][column_index].symbol.colorize(background: :black) + ' '.colorize(background: :black)
+              end
             else
-              row += ' '.colorize(background: :black) + @board[row_index][column_index].symbol.colorize(background: :black) + ' '.colorize(background: :black)
+              if @board[row_index][column_index].nil?
+                row += '   '.colorize(background: :red)
+              else
+                row += ' '.colorize(background: :red) + @board[row_index][column_index].symbol.colorize(background: :red) + ' '.colorize(background: :red)
+              end
             end
-
           else
             if @board[row_index][column_index].nil?
-              row += '   '.colorize(background: :red)
+              row += '   '.colorize(background: :blue)
             else
-              row += ' '.colorize(background: :red) + @board[row_index][column_index].symbol.colorize(background: :red) + ' '.colorize(background: :red)
+              row += ' '.colorize(background: :blue) + @board[row_index][column_index].symbol.colorize(background: :blue) + ' '.colorize(background: :blue)
             end
           end
-        end
+        end  
 
         puts row
       end
@@ -76,20 +83,27 @@ class Board
         row = "#{row_index + 1} "
 
         7.downto(0) do |column_index|
-          if (row_index + column_index).even?
-            if @board[row_index][column_index].nil?
-              row += '   '.colorize(background: :black)
+          unless (@move_history[-1][0][0] == row_index && @move_history[-1][0][1] == column_index) || (@move_history[-1][1][0] == row_index && @move_history[-1][1][1] == column_index)
+            if (row_index + column_index).even?
+              if @board[row_index][column_index].nil?
+                row += '   '.colorize(background: :black)
+              else
+                row += ' '.colorize(background: :black) + @board[row_index][column_index].symbol.colorize(background: :black) + ' '.colorize(background: :black)
+              end
             else
-              row += ' '.colorize(background: :black) + @board[row_index][column_index].symbol.colorize(background: :black) + ' '.colorize(background: :black)
+              if @board[row_index][column_index].nil?
+                row += '   '.colorize(background: :red)
+              else
+                row += ' '.colorize(background: :red) + @board[row_index][column_index].symbol.colorize(background: :red) + ' '.colorize(background: :red)
+              end
             end
-
           else
             if @board[row_index][column_index].nil?
-              row += '   '.colorize(background: :red)
+              row += '   '.colorize(background: :blue)
             else
-              row += ' '.colorize(background: :red) + @board[row_index][column_index].symbol.colorize(background: :red) + ' '.colorize(background: :red)
+              row += ' '.colorize(background: :blue) + @board[row_index][column_index].symbol.colorize(background: :blue) + ' '.colorize(background: :blue)
             end
-          end
+          end 
         end
 
         puts row
