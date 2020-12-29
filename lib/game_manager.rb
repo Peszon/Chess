@@ -15,10 +15,10 @@ class Game_manager
     Game_manager.create_load_file
   end 
 
-  def save_game(board_state, move_history)
-    json_hash = [board_state, move_history].to_json
+  def save_game(board_state, move_history, next_move_color)
+    game_array = [Time.now.strftime("%Y/%m/%d - %k%M"), board_state, move_history, next_move_color].to_json
     File.open("saved_games.txt", "a") do |file| 
-      file.puts json_hash
+      file.puts game_array
     end 
   end 
 
@@ -32,26 +32,25 @@ class Game_manager
       num_games = number_of_games 
       
       puts "please choose a game: "
-      players_choice = gets.chomp
 
+      players_choice = gets.chomp
       loop do
         break if (1..num_games).include?(players_choice.to_i) 
         puts "please enter a number that corresponds to a game!" 
         players_choice = gets.chomp
       end
       
-      json_hash = retrive_game_from_file(players_choice.to_i)
-      JSON.parse(jon_hash)
+      game_array = retrive_game_from_file(players_choice.to_i)
+      JSON.parse(game_array)
     end
   end
 
   def display_all_saved_games
-    all_game = file.readlines
-    File.open("sved_games.txt", "r") do |file|
-      puts all_games
+    File.open("saved_games.txt", "r") do |file|
+      all_games = file.readlines
       all_games.each_with_index do |game, index|
-        attribute_hash = JSON.parse(game) 
-        puts "game #{index + 1}, word: #{attribute_hash["save_profile"]}, guessed letters: #{attribute_hash["guessed_letters"].join(", ")}"
+        game_array = JSON.parse(game) 
+        puts "game: #{index + 1}, save_date: #{game_array[0]}, moves: #{game_array[2].length - 1}, next_move: #{game_array[3]}"
       end 
     end
   end
@@ -61,14 +60,12 @@ class Game_manager
   end    
 
   def retrive_game_from_file(row)
-    json_hash = nil
+    game_array = nil
     File.open("saved_games.txt", "r") do |file|
-      while row > 0
-        row -= 1
-        json_hash = file.gets
+        game_array = file.gets
       end
     end
          
-    json_hash
+    game_array
   end 
 end 

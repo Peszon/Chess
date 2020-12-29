@@ -280,7 +280,7 @@ class Board
 
   def check_pawn_taking_diagonally?(start_coordinates, end_coordinates) # also include a check for en-passant
     return true if start_coordinates[1] - end_coordinates[1] == 0
-    return false if start_coordinates[1] - end_coordinates[1] != 0 && @move_history.empty?
+    return false if start_coordinates[1] - end_coordinates[1] != 0 && @move_history.length < 2
 
     if @board[end_coordinates[0]][end_coordinates[1]]&.color == @next_move.color
       return false

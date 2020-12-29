@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# subclass of the piece is it's type "pawn", "knight", or "queen" e.v.
-
 # ./lib/piece.rb
+
+# subclass of the piece is it's type "pawn", "knight", or "queen" e.g.
 
 class Piece
   attr_reader :color, :subclass, :possible_moves, :symbol
